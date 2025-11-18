@@ -136,6 +136,46 @@ GROUP BY r.CarID, c.Brand, c.Model
 HAVING SUM(r.TotalCost) > 500;
 
 
+-- Part 8 
+SELECT Email AS ContactOrBrand FROM Customers
+WHERE Email IS NOT NULL
+UNION
+SELECT Brand AS ContactOrBrand FROM Cars;
+
+
+-- Part 9 
+SELECT CustomerID, UPPER(FullName) AS UpperName FROM Customers;
+
+SELECT CarID, Model, length(Model) AS ModelLength FROM Cars;
+SELECT RentalID, StartDate, EndDate,
+       CAST(julianday(EndDate) - julianday(StartDate) AS INTEGER) AS RentalLengthDays
+FROM Rentals;
+
+SELECT ROUND(AVG(TotalCost), 2) AS AvgRentalIncome FROM Rentals;
+
+
+-- Part 10 
+SELECT a.CustomerID AS C1, a.FullName AS Name1, b.CustomerID AS C2, b.FullName AS Name2, domain
+FROM (
+  SELECT CustomerID, FullName, Email,
+         substr(Email, instr(Email, '@')+1) AS domain
+  FROM Customers
+  WHERE Email IS NOT NULL
+) a
+JOIN (
+  SELECT CustomerID, FullName, Email,
+         substr(Email, instr(Email, '@')+1) AS domain
+  FROM Customers
+  WHERE Email IS NOT NULL
+) b
+  ON a.domain = b.domain
+ AND a.CustomerID < b.CustomerID;  
+
+ 
+
+
+
+
 
 
 
