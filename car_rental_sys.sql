@@ -123,6 +123,18 @@ FROM Rentals r
 JOIN Customers cu ON r.CustomerID = cu.CustomerID
 GROUP BY r.CustomerID, cu.FullName;
 
+SELECT r.CustomerID, cu.FullName, COUNT(*) AS RentalsCount
+FROM Rentals r
+JOIN Customers cu ON r.CustomerID = cu.CustomerID
+GROUP BY r.CustomerID, cu.FullName
+HAVING COUNT(*) > 2;
+
+SELECT r.CarID, c.Brand, c.Model, SUM(r.TotalCost) AS Income
+FROM Rentals r
+JOIN Cars c ON r.CarID = c.CarID
+GROUP BY r.CarID, c.Brand, c.Model
+HAVING SUM(r.TotalCost) > 500;
+
 
 
 
