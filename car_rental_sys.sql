@@ -171,7 +171,71 @@ JOIN (
   ON a.domain = b.domain
  AND a.CustomerID < b.CustomerID;  
 
- 
+
+ SELECT c.CarID, c.Brand, c.Model, cu.CustomerID, cu.FullName
+FROM Cars c
+CROSS JOIN Customers cu;
+
+
+SELECT r.RentalID, cu.FullName, c.Brand, c.Model, r.StartDate, r.EndDate,
+       CAST(julianday(r.EndDate) - julianday(r.StartDate) AS INTEGER) AS DurationDays,
+       r.TotalCost
+FROM Rentals r
+JOIN Cars c ON r.CarID = c.CarID
+JOIN Customers cu ON r.CustomerID = cu.CustomerID;
+
+
+-- Part 11 
+SELECT r.CarID, c.Brand, c.Model, COUNT(*) AS TimesRented
+FROM Rentals r
+JOIN Cars c ON r.CarID = c.CarID
+GROUP BY r.CarID, c.Brand, c.Model
+ORDER BY TimesRented DESC
+LIMIT 1;
+
+
+SELECT r.CustomerID, cu.FullName, SUM(r.TotalCost) AS Revenue
+FROM Rentals r
+JOIN Customers cu ON r.CustomerID = cu.CustomerID
+GROUP BY r.CustomerID, cu.FullName
+ORDER BY Revenue DESC
+LIMIT 1;
+
+
+SELECT r.RentalID, c.Model
+FROM Rentals r
+JOIN Cars c ON r.CarID = c.CarID
+WHERE EXISTS (
+  SELECT 1-- create summary table
+CREATE TABLE SummaryStats (
+  StatID INTEGER PRIMARY KEY,
+  StatName TEXT,
+  StatValue TEXT
+);
+
+-- insert some aggregates
+INSERT INTO SummaryStats (StatName, StatValue) VALUES ('TotalRentals', (SELECT CAST(COUNT(*) AS TEXT) FROM Rentals));
+INSERT INTO SummaryStats (StatName, StatValue) VALUES ('TotalRevenue', (SELECT CAST(SUM(TotalCost) AS TEXT) FROM Rentals));
+INSERT INTO SummaryStats (StatName, StatValue) VALUES ('AvgRentalDays', (SELECT CAST(ROUND(AVG(julianday(EndDate)-julianday(StartDate)),2) AS TEXT) FROM Rentals));
+INSERT INTO SummaryStats (StatName, StatValue) VALUES ('MostRentedCar', (SELECT Brand || ' ' || Model FROM Cars WHERE CarID = (SELECT CarID FROM Rentals GROUP BY CarID ORDER BY COUNT(*) DESC LIMIT 1)));
+
+  FROM (
+    SELECT substr(c.Model, i, 1) AS ch
+    FROM (SELECT 1 AS i UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10)
+    WHERE i <= length(c.Model)
+  ) letters
+  GROUP BY ch
+  HAVING ch IS NOT NULL AND ch != '' AND COUNT(*) > 1
+);
+
+
+CREATE VIEW ActiveRentalsView AS
+SELECT r.RentalID, r.CarID, r.CustomerID, r.StartDate, r.EndDate, r.TotalCost
+FROM Rentals r
+WHERE date(r.EndDate) >= date('now');
+
+
+
 
 
 
